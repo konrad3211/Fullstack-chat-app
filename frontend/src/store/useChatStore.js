@@ -2,13 +2,14 @@ import { create } from "zustand";
 import toast from "react-hot-toast";
 import { axiosInstance } from "../lib/axios";
 import { useAuthStore } from "./useAuthStore";
-//get uzywamy do pobierania danych z tych statow
+
 export const useChatStore = create((set, get) => ({
   messages: [],
   users: [],
   selectedUser: null,
   isUsersLoading: false,
   isMessagesLoading: false,
+  isMessageSending: false,
 
   getUsers: async () => {
     set({ isUsersLoading: true });
@@ -16,7 +17,8 @@ export const useChatStore = create((set, get) => ({
       const res = await axiosInstance.get("/messages/users");
       set({ users: res.data });
     } catch (error) {
-      toast.error(error.response.data.message);
+      const msgError = error?.response?.data?.message || "Something went wrong";
+      toast.error(msgError);
     } finally {
       set({ isUsersLoading: false });
     }
@@ -28,15 +30,17 @@ export const useChatStore = create((set, get) => ({
       const res = await axiosInstance.get(`/messages/${userId}`);
       set({ messages: res.data });
     } catch (error) {
-      toast.error(error.response.data.message);
+      const msgError = error?.response?.data?.message || "Something went wrong";
+      toast.error(msgError);
     } finally {
       set({ isMessagesLoading: false });
     }
   },
 
-  //i tutaj uzywamy get to wziecia selectedUser i messages
+  
   sendMessage: async (messageData) => {
     const { selectedUser, messages } = get();
+    set({ isMessageSending: true });
     try {
       const res = await axiosInstance.post(
         `/messages/send/${selectedUser._id}`,
@@ -44,7 +48,10 @@ export const useChatStore = create((set, get) => ({
       );
       set({ messages: [...messages, res.data] });
     } catch (error) {
-      toast.error(error.response.data.message);
+      const msgError = error?.response?.data?.message || "Something went wrong";
+      toast.error(msgError);
+    } finally {
+      set({ isMessageSending: false });
     }
   },
 
@@ -55,7 +62,7 @@ export const useChatStore = create((set, get) => ({
     const socket = useAuthStore.getState().socket;
 
     socket.on("newMessage", (newMessage) => {
-      //dzieki temu nizej nie bedzie sie bugowac ze jezeli ktos wysle wiadomosc do innej osoby niz ta ktora jest zalogowana
+      
       const isMessageSentFromSelectedUser =
         newMessage.senderId === selectedUser._id;
       if (!isMessageSentFromSelectedUser) return;

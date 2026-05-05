@@ -3,29 +3,29 @@ import { useAuthStore } from "../store/useAuthStore";
 import { Camera, Mail, User } from "lucide-react";
 
 const ProfilePage = () => {
-  //bierzemy wszystkie te funckje
+  
   const { authUser, isUpdatingProfile, updateProfile } = useAuthStore();
 
-  //useState do zmiany zdjecia
+  
   const [selectedImg, setSelectedImg] = useState(null);
 
-  //No i funkcja do uploadu zdjecia do serwera
+  
   const handleImageUpload = async (e) => {
-    //pobieramy zdjecie z pliku
+    
     const file = e.target.files[0];
-    //jezeli nie ma zdjecia to wyjdz
+    
     if (!file) return;
-    //tworzymy obiekt do czytania pliku
+    
     const reader = new FileReader();
-    //pobieramy zdjecie z pliku i zapisujemy do obiektu reader w formacie base64
+    
     reader.readAsDataURL(file);
 
     reader.onload = async () => {
-      //Wynik odczytu zapisujemy w zmiennej
+      
       const base64Image = reader.result;
-      //Ustawiamy zdjecie w state
+      
       setSelectedImg(base64Image);
-      //Wysylamy zdjecie do serwera, profilePic jest nieprzypadkowe poniewaz w naszym api jest to nazwa pola w body. A dokladniej w auth.controller w updateProfile jest profilePic = req.body
+      
       await updateProfile({ profilePic: base64Image });
     };
   };
@@ -39,7 +39,7 @@ const ProfilePage = () => {
             <p className="mt-2">Your profile information</p>
           </div>
 
-          {/* avatar upload section */}
+          {}
 
           <div className="flex flex-col items-center gap-4">
             <div className="relative">

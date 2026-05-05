@@ -8,7 +8,7 @@ const MessageInput = () => {
   const [imagePreview, setImagePreview] = useState(null);
   const fileInputRef = useRef(null); //to sluzy do niewidzialnego inputa z wyborem zdjecia. Ktory to buton bedzie imitowac tego inputa, co poprawia estetyke.
 
-  const { sendMessage } = useChatStore();
+  const { sendMessage, isMessageSending } = useChatStore();
 
   //ta funckja sluzy do wyswietlania podgladu zdjecia. Bierzemy pierwszy plik, tworzymy nowy fileReader, mowimy jezeli zdjecie sie juz przeladuje to zapisz je jako setImagePreview, i pozniej wykonujemy zakodowanie tego zdjecia jako dataURL (wiec jak juz zapisze sie jako dataURL to dopiero wtedy onloaded zadziala). Pomimo, ze readAsDataUrl jest na dole to ono sie wykona najpierw a dopiero pozniej to wyzej.
   const handleImageChange = (e) => {
@@ -25,7 +25,7 @@ const MessageInput = () => {
     reader.readAsDataURL(file);
   };
 
-  //Tutaj czyscimy preview i czyscimy nasz input z wgranego wlasnie pliku
+  
   const removeImage = () => {
     setImagePreview(null);
     if (fileInputRef.current) fileInputRef.current.value = "";
@@ -55,7 +55,7 @@ const MessageInput = () => {
         <div className="mb-3 flex items-center gap-2">
           <div className="relative">
             <img
-              //tutaj jest dataURL dzieki funkcji handleImageChange
+              
               src={imagePreview}
               alt="Preview"
               className="w-20 h-20 object-cover rounded-lg border border-zinc-700"
@@ -85,7 +85,7 @@ const MessageInput = () => {
             type="file"
             accept="image/*"
             className="hidden"
-            //ustawiamy ref dzieki czemu bedzeimy mogli miec dostep do mozliwosci inputa w btn pozniej, za pomoca fileInputRef.current - ta wartosc bedzie odnosic sie wlasnie do tego inputa.
+            
             ref={fileInputRef}
             onChange={handleImageChange}
           />
@@ -102,7 +102,7 @@ const MessageInput = () => {
         <button
           type="submit"
           className="btn btn-sm btn-circle"
-          disabled={!text.trim() && !imagePreview}
+          disabled={(!text.trim() && !imagePreview) || isMessageSending}
         >
           <Send size={23} />
         </button>

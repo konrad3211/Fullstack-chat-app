@@ -7,7 +7,7 @@ export const getUsersForSidebar = async (req, res) => {
   try {
     const loggedInUserId = req.user._id;
     const filteredUsers = await User.find({
-      //znajdz wszystkich uzytkownikow oprocz logowanego i zwroc info o uzytkownikach oprocz hasha hasla
+      
       _id: { $ne: loggedInUserId },
     }).select("-password");
     res.status(200).json(filteredUsers);
@@ -21,7 +21,7 @@ export const getMessages = async (req, res) => {
   try {
     const { id: userToChatId } = req.params;
     const myId = req.user._id;
-    //to zwroci wiadomosci wymienienae z uzytkownikami
+    
     const messages = await Message.find({
       $or: [
         { senderId: myId, receiverId: userToChatId },
@@ -41,6 +41,10 @@ export const sendMessage = async (req, res) => {
     const { id: receiverId } = req.params;
     const senderId = req.user._id;
 
+    if (!text && !image) {
+      return res.status(400).json({ message: "Text or image is required" });
+    }
+
     let imageUrl;
     if (image) {
       const uploadResponse = await cloudinary.uploader.upload(image);
@@ -57,7 +61,7 @@ export const sendMessage = async (req, res) => {
 
     const receiverSokcetId = getReceiverSocketId(receiverId);
     if (receiverSokcetId) {
-      //emit message to receiver
+      
       io.to(receiverSokcetId).emit("newMessage", newMessage);
     }
 
